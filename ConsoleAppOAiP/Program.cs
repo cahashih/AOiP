@@ -2,100 +2,76 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BaseExam
 {
     internal class Program
+    {
+        private static void Main(string[] args)
         {
-            private static void Main(string[] args)
+            // Создать два объекта типа Person с совпадающими данными и проверить, что ссылки на объекты не равны, а объекты равны, вывести значения хэшкодов для объектов.
+            var person1 = new Person("Sasha", "Blazer", new DateTime(2004, 04, 08));
+            var person2 = new Person("Sasha", "Blazer", new DateTime(2004, 04, 08));
+
+            Console.WriteLine(Object.ReferenceEquals(person2, person1));
+            Console.WriteLine(person1 == person2);
+            Console.WriteLine("хэш: \n{0}  \n{1}", person1.GetHashCode(), person2.GetHashCode());
+            Console.WriteLine();
+
+            // Создать объект типа Student, добавить элементы в список экзаменов и зачетов, вывести данные объекта Student. 
+            var student = new Student(new Person("Sasha", "Blazer", new DateTime(2004, 04, 08)), Education.Specialist, 320);
+            student.AddExams(new Exam("\n OAip", 5, new DateTime(2022, 09, 14)));
+            student.AddTests(new Test("OAiP", true));
+
+            // Вывести значение свойства типа Person для объекта типа Student.
+            Console.WriteLine(student.ToString());
+            Console.WriteLine(student.Persons);
+            Console.WriteLine();
+
+            // С помощью метода DeepCopy() создать полную копию объекта Student. Изменить данные в исходном объекте Student и вывести копию и исходный объект, полная копия исходного объекта должна остаться без изменений.
+            var studentClone = (Student)student.DeepCopy();
+            student.Names = "Senaval";
+            student.Surnames = "Russian";
+            // student.DateOfBirths = new DateTime(2020, 02, 12);
+            Console.WriteLine(student.ToString());
+            Console.WriteLine(studentClone.ToString());
+
+
+            // В блоке try/catch присвоить свойству с номером группы некорректное значение, в обработчике исключения вывести сообщение, переданное через объект - исключение.
+            try
             {
-                // Создать один объект типа Student, преобразовать данные в текстовый вид с помощью метода ToShortString() и вывести данные.
-
-                var student = new Student(new Person("Alexander ", "Truen ", new DateTime(2004, 06, 19)), Education.Вachelor, 320);
-                Console.WriteLine(student.ToShortString());
-
-                // Вывести значения индексатора для значений индекса Education.Specialist, Education.Bachelor и Education.SecondEducation.
-
-                Console.WriteLine(student[Education.Specialist]);
-                Console.WriteLine(student[Education.Вachelor]);
-                Console.WriteLine(student[Education.SecondEducation]);
-                // Присвоить значения всем определенным в типе Student свойствам, преобразовать данные в текстовый вид с помощью метода ToString() и вывести данные.
-
-                student.Persons = new Person("Lewn ", "Truen ", new DateTime(2008, 09, 12));
-                student.Educations = Education.Specialist;
-                student.NumGroups = 320;
-
-                Console.WriteLine(student.ToString());
-
-                // C помощью метода AddExams( params Exam*+ ) добавить элементы в список экзаменов и вывести данные объекта Student, используя метод ToString().
-
-                student.AddExams(new Exam("AOiP", 4, new DateTime(2022, 09, 25)), new Exam("PiTPM", 5, new DateTime(2022, 09, 27)));
-                Console.WriteLine(student.ToString());
-
-                //Сравнить время выполнения операций с элементами одномерного, двумерного прямоугольного и двумерного ступенчатого массивов с одинаковым числом элементов типа Exam.
-
-                var OneArray = new Exam[10000];
-                var TwoArray = new Exam[100,100];
-                var jaggedArray = new Exam[100][];
-
-                
-
-                // Одномерный массив     
-                var sw = Stopwatch.StartNew();
-
-                for (int i = 0; i < 10000; i++)
-                {
-                    OneArray[i] = null;
-                }
-                    
-                sw.Stop();
-                Console.Write("Одномерный массив: ");
-                Console.WriteLine(sw.Elapsed);
-
-                // Двумерный массив
-                sw = Stopwatch.StartNew();
-
-                for(int i = 0; i < 100; i++)
-                {
-                    for(int j = 0; j < 100; j++)
-                    {
-                        TwoArray[i,j] = null;
-                    }
-                }
-
-                sw.Stop();
-                Console.Write("Двумерный прямоугольный массив: ");
-                Console.WriteLine(sw.Elapsed);
-
-                // Двумерный ступенчатый
-
-                for (int i = 0; i < jaggedArray.Length; i++)
-                {
-                    jaggedArray[i] = new Exam[1000];
-                }
-
-                sw = Stopwatch.StartNew();
-
-                for(int i = 0; i < 100; i++)
-                {
-                    for(int j = 0; j < 100; j++)
-                    {
-                        jaggedArray[i][j] = null;
-                    }
-                }
-
-                sw.Stop();
-                Console.Write("Двумерный ступенчатый массив: ");
-                Console.WriteLine(sw.Elapsed);
-                Console.ReadKey();
+                student.GroupNumbers = 600;
             }
-        }
+            catch (ArgumentOutOfRangeException e)
+            {
+                Console.WriteLine(e.Message);
+            }
 
+
+            // С помощью оператора foreach для итератора, определенного в классе Student, вывести список всех зачетов и экзаменов. 
+            foreach (var task in student.GetResults())
+                Console.WriteLine(task.ToString());
+
+            // С помощью оператора foreach для итератора с параметром, определенного в классе Student, вывести список всех экзаменов с оценкой выше 3.
+
+            foreach (var task in student.ExamsOver(3))
+                Console.WriteLine(task.ToString());
+            Console.ReadKey();
+        }
+    }
 
     enum Education
     {
         Specialist,
         Вachelor,
         SecondEducation
+    }
+
+
+    interface IDateAndCopy
+    {
+        object DeepCopy();
+        DateTime Date { get; set; }
     }
 }
